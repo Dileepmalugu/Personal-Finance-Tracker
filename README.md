@@ -333,11 +333,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you have any questions or need help, please:
 1. Check the [Issues](https://github.com/yourusername/personal-finance-tracker/issues) page
 2. Create a new issue if needed
-3. Contact me directly at your.email@example.com
+3. Contact me directly at malugu.dileepkumar@gmail.com
 
 ## 🚨 Security
 
-If you discover a security vulnerability, please send an e-mail to your.email@example.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability, please send an e-mail to malugu.dileepkumar@gmail.com. All security vulnerabilities will be promptly addressed.
 
 ---
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="com.yourname.financetracker" version="1.0.0"
+        xmlns="http://www.w3.org/ns/widgets"
+        xmlns:cdv="http://cordova.apache.org/ns/1.0">
+
+    <name>Personal Finance Tracker</name>
+    <description>Track your personal finances easily and securely</description>
+    <author email="your.email@example.com">Your Name</author>
+
+    <!-- Main entry point -->
+    <content src="index.html" />
+
+    <!-- Network Access -->
+    <access origin="*" />
+    <allow-navigation href="https://personal-finance-tracker-moyc.onrender.com/*" />
+    <allow-navigation href="https://cdnjs.cloudflare.com/*" />
+
+    <!-- Global Preferences -->
+    <preference name="DisallowOverscroll" value="true" />
+
+    <!-- Android Platform Settings -->
+    <platform name="android">
+        <!-- Target and compile SDK versions -->
+        <preference name="android-targetSdkVersion" value="35" />
+        <preference name="android-compileSdkVersion" value="35" />
+
+        <!-- Network Security Config -->
+        <resource-file src="res/xml/network_security_config.xml"
+                       target="app/src/main/res/xml/network_security_config.xml" />
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application xmlns:android="http://schemas.android.com/apk/res/android"
+                         android:networkSecurityConfig="@xml/network_security_config" />
+        </edit-config>
+
+        <!-- Permissions -->
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest">
+            <uses-permission android:name="android.permission.INTERNET" xmlns:android="http://schemas.android.com/apk/res/android" />
+        </edit-config>
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest">
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" xmlns:android="http://schemas.android.com/apk/res/android" />
+        </edit-config>
+
+        <!-- Icons -->
+        <icon density="ldpi" src="res/icon/android/icon-36-ldpi.png" />
+        <icon density="mdpi" src="res/icon/android/icon-48-mdpi.png" />
+        <icon density="hdpi" src="res/icon/android/icon-72-hdpi.png" />
+        <icon density="xhdpi" src="res/icon/android/icon-96-xhdpi.png" />
+        <icon density="xxhdpi" src="res/icon/android/icon-144-xxhdpi.png" />
+        <icon density="xxxhdpi" src="res/icon/android/icon-192-xxxhdpi.png" />
+
+        <!-- Market Intent -->
+        <allow-intent href="market:*" />
+    </platform>
+
+    <!-- Plugins -->
+    <plugin name="cordova-plugin-file" spec="8.1.3" />
+    <plugin name="cordova-plugin-device" spec="2.1.0" />
+    <plugin name="cordova-plugin-statusbar" spec="2.4.3" />
+    <plugin name="cordova-plugin-advanced-http" spec="3.3.1" />
+
+</widget>

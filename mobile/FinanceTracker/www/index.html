@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com https://cdnjs.cloudflare.com https://personal-finance-tracker-moyc.onrender.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <title>Personal Finance Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Auth Styles */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-form {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            padding: 12px 8px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card.income .amount {
+            color: #4caf50;
+        }
+
+        .stat-card.expense .amount {
+            color: #f44336;
+        }
+
+        .stat-card.balance .amount {
+            color: #2196f3;
+        }
+
+        /* Forms */
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .chart-wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow-x: auto;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Progress bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Budget/Goal Cards */
+        .budget-grid, .goal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .budget-card, .goal-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .budget-card h4, .goal-card h4 {
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        /* Action buttons */
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            margin: 3px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+            border: none;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .alert-success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .tab-navigation {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .tab-btn {
+                font-size: 11px;
+                padding: 10px 6px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Section -->
+    <div id="authSection" class="auth-container">
+        <div class="auth-form">
+            <h2 id="authTitle">Login</h2>
+            <div id="authAlert"></div>
+            
+            <form id="authForm">
+                <div class="form-group" id="usernameGroup">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="form-group" id="emailGroup" style="display: none;">
+                    <label for="email">Email</label>
+                    <input type="email" id="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <button type="submit" class="btn" id="authSubmitBtn">Login</button>
+                <button type="button" class="btn btn-secondary" id="switchAuthBtn">
+                    Switch to Register
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="dashboard">
+        <div class="container">
+            <div class="header">
+                <h1>Finance Tracker</h1>
+                <div class="user-info">
+                    <span id="welcomeUser">Welcome!</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="showTab('dashboard')">Home</button>
+                <button class="tab-btn" onclick="showTab('transactions')">Add</button>
+                <button class="tab-btn" onclick="showTab('budgets')">Budget</button>
+                <button class="tab-btn" onclick="showTab('goals')">Goals</button>
+                <button class="tab-btn" onclick="showTab('reports')">Reports</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card income">
+                        <h3>Total Income</h3>
+                        <div class="amount" id="totalIncome">$0.00</div>
+                    </div>
+                    <div class="stat-card expense">
+                        <h3>Total Expenses</h3>
+                        <div class="amount" id="totalExpenses">$0.00</div>
+                    </div>
+                    <div class="stat-card balance">
+                        <h3>Balance</h3>
+                        <div class="amount" id="balance">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Transactions</h3>
+                        <div class="amount" id="transactionCount">0</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Expense Categories</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Monthly Trend</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div id="transactionsTab" class="tab-content">
+                <div class="form-card">
+                    <h3>Add New Transaction</h3>
+                    <form id="transactionForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="transactionType">Type</label>
+                                <select id="transactionType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionAmount">Amount</label>
+                                <input type="number" id="transactionAmount" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="transactionCategory">Category</label>
+                                <select id="transactionCategory" required>
+                                    <option value="">Select Category</option>
+                                    <optgroup label="Income" id="incomeCategories" style="display:none">
+                                        <option value="Salary">Salary</option>
+                                        <option value="Freelance">Freelance</option>
+                                        <option value="Investments">Investments</option>
+                                        <option value="Business">Business</option>
+                                        <option value="Other Income">Other Income</option>
+                                    </optgroup>
+                                    <optgroup label="Expenses" id="expenseCategories">
+                                        <option value="Food">Food</option>
+                                        <option value="Transportation">Transportation</option>
+                                        <option value="Housing">Housing</option>
+                                        <option value="Utilities">Utilities</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Healthcare">Healthcare</option>
+                                        <option value="Shopping">Shopping</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Other">Other</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionDate">Date</label>
+                                <input type="date" id="transactionDate" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionDescription">Description</label>
+                            <input type="text" id="transactionDescription" placeholder="Optional description">
+                        </div>
+                        <button type="submit" class="btn">Add Transaction</button>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <h3 style="padding: 15px 15px 0;">Recent Transactions</h3>
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Budgets Tab -->
+            <div id="budgetsTab" class="tab-content">
+                <div class="form-card">
+                    <h3>Set Budget</h3>
+                    <form id="budgetForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="budgetCategory">Category</label>
+                                <select id="budgetCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Housing">Housing</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="budgetLimit">Monthly Limit</label>
+                                <input type="number" id="budgetLimit" step="0.01" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">Set Budget</button>
+                    </form>
+                </div>
+
+                <div class="budget-grid" id="budgetGrid">
+                    <!-- Budget cards will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Goals Tab -->
+            <div id="goalsTab" class="tab-content">
+                <div class="form-card">
+                    <h3>Create Financial Goal</h3>
+                    <form id="goalForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goalTitle">Goal Title</label>
+                                <input type="text" id="goalTitle" required placeholder="e.g., Emergency Fund">
+                            </div>
+                            <div class="form-group">
+                                <label for="goalTarget">Target Amount</label>
+                                <input type="number" id="goalTarget" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goalCurrent">Current Amount</label>
+                                <input type="number" id="goalCurrent" step="0.01" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="goalDate">Target Date</label>
+                                <input type="date" id="goalDate" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="goalDescription">Description</label>
+                            <input type="text" id="goalDescription" placeholder="Optional description">
+                        </div>
+                        <button type="submit" class="btn">Create Goal</button>
+                    </form>
+                </div>
+
+                <div class="goal-grid" id="goalGrid">
+                    <!-- Goal cards will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reportsTab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Avg Monthly Income</h3>
+                        <div class="amount" id="avgIncome">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Avg Monthly Expenses</h3>
+                        <div class="amount" id="avgExpenses">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Savings Rate</h3>
+                        <div class="amount" id="savingsRate">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Transactions</h3>
+                        <div class="amount" id="totalTransactions">0</div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3>Export Data</h3>
+                    <p>Download your financial data:</p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="exportData('csv')">Export as CSV</button>
+                        <button class="btn btn-secondary" onclick="exportData('json')">Export as JSON</button>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Monthly Comparison</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let transactions = [];
+        let budgets = [];
+        let goals = [];
+        let authToken = null;
+
+        // Chart instances
+        let categoryChart = null;
+        let trendChart = null;
+        let monthlyChart = null;
+
+       const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                             ? 'http://localhost:5000/api'  // Development
+                          : 'https://personal-finance-tracker-moyc.onrender.com/api';  // Production
+
+        // Wait for Cordova device ready
+        document.addEventListener('deviceready', onDeviceReady, false);
+
+        // Connection check functions
+        function checkConnection() {
+    return new Promise((resolve, reject) => {
+        const isDevice = window.cordova && typeof device !== 'undefined';
+        const timeout = isDevice ? 20000 : 10000; // Longer timeout for mobile
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        // Try the health endpoint first
+        const healthUrl = API_BASE.replace('/api', '') + '/health';
+        
+        fetch(healthUrl, {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            signal: controller.signal,
+            mode: 'cors',
+            credentials: 'omit'
+        })
+        .then(response => {
+            clearTimeout(timeoutId);
+            if (response.ok) {
+                console.log('Backend connection successful');
+                resolve(true);
+            } else if (response.status >= 400 && response.status < 500) {
+                console.log('Backend reachable but returned error:', response.status);
+                resolve(true);
+            } else {
+                reject(`Server error: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                reject('Connection timeout - server may be starting up, please wait');
+            } else if (error.message.includes('CORS')) {
+                reject('CORS error - check server configuration');
+            } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+                reject('Network error - check your internet connection');
+            } else {
+                reject(`Connection failed: ${error.message}`);
+            }
+        });
+    });
+}
+async function makeApiCall(url, options = {}) {
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+        },
+        mode: 'cors',
+        credentials: 'omit'
+    };
+
+    const finalOptions = { ...defaultOptions, ...options };
+    
+    if (options.headers) {
+        finalOptions.headers = { ...defaultOptions.headers, ...options.headers };
+    }
+
+    try {
+        console.log('Making API call to:', url);
+        const response = await fetch(url, finalOptions);
+        
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                logout();
+                throw new Error('Session expired. Please login again.');
+            }
+            
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('API call failed:', error);
+        
+        if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+            throw new Error('Network error - please check your internet connection');
+        } else if (error.message.includes('CORS')) {
+            throw new Error('Server connection error - please try again');
+        } else {
+            throw error;
+        }
+    }
+}
+
+        function showLoadingMessage(message) {
+            // Remove existing error messages
+            const existingError = document.querySelector('.connection-error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Show loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-message';
+            loadingDiv.innerHTML = `
+                <div style="padding: 10px; background: #f0f8ff; border: 1px solid #0066cc; border-radius: 5px; margin: 10px; text-align: center;">
+                    <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #0066cc; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 10px;"></div>
+                    ${message}
+                </div>
+            `;
+            
+            const container = document.querySelector('.container') || document.body;
+            container.insertBefore(loadingDiv, container.firstChild);
+            
+            // Add CSS for spinner animation if not already added
+            if (!document.querySelector('#spinner-style')) {
+                const style = document.createElement('style');
+                style.id = 'spinner-style';
+                style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+                document.head.appendChild(style);
+            }
+        }
+
+        function hideLoadingMessage() {
+            const loadingMessage = document.querySelector('.loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+
+        function showConnectionError(error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'connection-error';
+            errorDiv.innerHTML = `
+                <div style="padding: 10px; background: #ffe6e6; border: 1px solid #cc0000; border-radius: 5px; margin: 10px;">
+                    <strong>Connection Error:</strong> ${error}
+                    <br><br>
+                    <button onclick="retryConnection()" style="padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                        Retry Connection
+                    </button>
+                    <br><small style="color: #666; margin-top: 5px; display: block;">
+                        App will work in offline mode for viewing existing data.
+                    </small>
+                </div>
+            `;
+            
+            const container = document.querySelector('.container') || document.body;
+            container.insertBefore(errorDiv, container.firstChild);
+        }
+
+        function retryConnection() {
+            const errorDiv = document.querySelector('.connection-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            
+            showLoadingMessage('Retrying connection...');
+            
+            checkConnection()
+                .then(() => {
+                    console.log('Retry successful');
+                    hideLoadingMessage();
+                    showAlert('Connection restored!', 'success');
+                })
+                .catch(error => {
+                    console.error('Retry failed:', error);
+                    hideLoadingMessage();
+                    showConnectionError(error);
+                });
+        }
+
+        // Enhanced onDeviceReady function with connection check
+        function onDeviceReady() {
+            console.log('Cordova device ready');
+            
+            // Show loading indicator
+            showLoadingMessage('Connecting to server...');
+            
+            // Add delay for mobile initialization
+            setTimeout(() => {
+                checkConnection()
+                    .then(() => {
+                        console.log('Connection to backend successful');
+                        hideLoadingMessage();
+                        initializeApp();
+                        setupEventListeners();
+                        setDefaultDate();
+                    })
+                    .catch(error => {
+                        console.error('Connection failed:', error);
+                        hideLoadingMessage();
+                        
+                        // Show connection error with retry option
+                        showConnectionError(error);
+                        
+                        // Still initialize for offline functionality
+                        initializeApp();
+                        setupEventListeners();
+                        setDefaultDate();
+                    });
+            }, 1000);
+        }
+
+        function initializeApp() {
+            // Check for stored auth token
+            const storedToken = localStorage.getItem('authToken');
+            const storedUser = localStorage.getItem('currentUser');
+            
+            if (storedToken && storedUser) {
+                authToken = storedToken;
+                currentUser = JSON.parse(storedUser);
+                showDashboard();
+                loadUserData();
+            } else {
+                showAuthSection();
+            }
+        }
+
+        function setupEventListeners() {
+            // Auth form
+            document.getElementById('authForm').addEventListener('submit', handleAuth);
+            document.getElementById('switchAuthBtn').addEventListener('click', switchAuthMode);
+            document.getElementById('transactionType').addEventListener('change', updateCategoryOptions);
+            
+            // Transaction form
+            document.getElementById('transactionForm').addEventListener('submit', addTransaction);
+            
+            // Budget form
+            document.getElementById('budgetForm').addEventListener('submit', setBudget);
+            
+            // Goal form
+            document.getElementById('goalForm').addEventListener('submit', createGoal);
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transactionDate').value = today;
+            
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('goalDate').value = nextMonth.toISOString().split('T')[0];
+        }
+
+        // Authentication functions
+       async function handleAuth(e) {
+    e.preventDefault();
+    const isLogin = document.getElementById('authTitle').textContent === 'Login';
+    
+    const userData = {
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value
+    };
+    
+    if (!isLogin) {
+        userData.email = document.getElementById('email').value.trim();
+    }
+
+    if (!userData.username || !userData.password) {
+        showAlert('Please fill in all required fields', 'error');
+        return;
+    }
+
+    if (!isLogin && !userData.email) {
+        showAlert('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        const endpoint = isLogin ? '/auth/login' : '/auth/register';
+        
+        const data = await makeApiCall(API_BASE + endpoint, {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+        
+        authToken = data.token;
+        currentUser = data.user;
+        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        showDashboard();
+        await loadUserData();
+        showAlert(`${isLogin ? 'Login' : 'Registration'} successful!`, 'success');
+        
+    } catch (error) {
+        console.error('Auth error:', error);
+        showAlert(error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+        function switchAuthMode() {
+            const title = document.getElementById('authTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const switchBtn = document.getElementById('switchAuthBtn');
+            const emailGroup = document.getElementById('emailGroup');
+            
+            if (title.textContent === 'Login') {
+                title.textContent = 'Register';
+                submitBtn.textContent = 'Register';
+                switchBtn.textContent = 'Switch to Login';
+                emailGroup.style.display = 'block';
+                document.getElementById('email').required = true;
+            } else {
+                title.textContent = 'Login';
+                submitBtn.textContent = 'Login';
+                switchBtn.textContent = 'Switch to Register';
+                emailGroup.style.display = 'none';
+                document.getElementById('email').required = false;
+            }
+            
+            document.getElementById('authAlert').innerHTML = '';
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            showAuthSection();
+            clearAllData();
+        }
+
+        // UI functions
+        function showAuthSection() {
+            document.getElementById('authSection').style.display = 'flex';
+            document.getElementById('dashboardSection').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            
+            if (currentUser) {
+                document.getElementById('welcomeUser').textContent = `Welcome, ${currentUser.username}!`;
+            }
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load specific data for the tab
+            switch(tabName) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'transactions':
+                    renderTransactionsTable();
+                    break;
+                case 'budgets':
+                    renderBudgets();
+                    break;
+                case 'goals':
+                    renderGoals();
+                    break;
+                case 'reports':
+                    loadReports();
+                    break;
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('authAlert');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Data loading functions
+        async function loadUserData() {
+            try {
+                await Promise.all([
+                    loadTransactions(),
+                    loadBudgets(), 
+                    loadGoals()
+                ]);
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                if (error.message.includes('401') || error.message.includes('403')) {
+                    logout();
+                }
+            }
+        }
+
+       async function loadTransactions() {
+    try {
+        transactions = await makeApiCall(API_BASE + '/transactions');
+        renderTransactionsTable();
+    } catch (error) {
+        console.error('Error loading transactions:', error);
+        transactions = [];
+        if (!error.message.includes('Session expired')) {
+            showAlert('Failed to load transactions: ' + error.message, 'error');
+        }
+        throw error;
+    }
+}
+
+        async function loadBudgets() {
+            try {
+                const response = await fetch(API_BASE + '/budgets', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    budgets = await response.json();
+                    renderBudgets();
+                } else if (response.status === 401 || response.status === 403) {
+                    throw new Error('Unauthorized');
+                } else {
+                    console.error('Failed to load budgets');
+                    budgets = [];
+                }
+            } catch (error) {
+                console.error('Error loading budgets:', error);
+                budgets = [];
+                throw error;
+            }
+        }
+
+        async function loadGoals() {
+            try {
+                const response = await fetch(API_BASE + '/goals', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    goals = await response.json();
+                    renderGoals();
+                } else if (response.status === 401 || response.status === 403) {
+                    throw new Error('Unauthorized');
+                } else {
+                    console.error('Failed to load goals');
+                    goals = [];
+                }
+            } catch (error) {
+                console.error('Error loading goals:', error);
+                goals = [];
+                throw error;
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(API_BASE + '/dashboard/stats', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    updateDashboardStats(stats);
+                    setTimeout(() => {
+                        renderCharts(stats);
+                    }, 100);
+                } else if (response.status === 401 || response.status === 403) {
+                    throw new Error('Unauthorized');
+                } else {
+                    const stats = calculateStats();
+                    updateDashboardStats(stats);
+                    setTimeout(() => {
+                        renderCharts(stats);
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                const stats = calculateStats();
+                updateDashboardStats(stats);
+                setTimeout(() => {
+                    renderCharts(stats);
+                }, 100);
+                
+                if (error.message.includes('Unauthorized')) {
+                    throw error;
+                }
+            }
+        }
+
+        function calculateStats() {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const balance = totalIncome - totalExpenses;
+            
+            const categoryExpenses = {};
+            transactions
+                .filter(t => t.type === 'expense')
+                .forEach(t => {
+                    categoryExpenses[t.category] = (categoryExpenses[t.category] || 0) + t.amount;
+                });
+            
+            return {
+                totalIncome,
+                totalExpenses,
+                balance,
+                categoryExpenses,
+                transactionCount: transactions.length
+            };
+        }
+
+        function loadReports() {
+            const monthlyData = calculateMonthlyAverages();
+            updateReportsStats(monthlyData);
+            setTimeout(() => {
+                renderMonthlyChart(monthlyData.monthlyData);
+            }, 100);
+        }
+
+        // Transaction functions
+        function updateCategoryOptions() {
+            const type = document.getElementById('transactionType').value;
+            const incomeCategories = document.getElementById('incomeCategories');
+            const expenseCategories = document.getElementById('expenseCategories');
+            
+            if (type === 'income') {
+                incomeCategories.style.display = 'block';
+                expenseCategories.style.display = 'none';
+            } else if (type === 'expense') {
+                incomeCategories.style.display = 'none';
+                expenseCategories.style.display = 'block';
+            } else {
+                incomeCategories.style.display = 'none';
+                expenseCategories.style.display = 'none';
+            }
+            
+            document.getElementById('transactionCategory').value = '';
+        }
+
+        async function addTransaction(e) {
+            e.preventDefault();
+            
+            const transactionData = {
+                type: document.getElementById('transactionType').value,
+                amount: parseFloat(document.getElementById('transactionAmount').value),
+                category: document.getElementById('transactionCategory').value,
+                date: document.getElementById('transactionDate').value,
+                description: document.getElementById('transactionDescription').value
+            };
+            
+            try {
+                showLoading(true);
+                const response = await fetch(API_BASE + '/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('transactionForm').reset();
+                    setDefaultDate();
+                    await loadTransactions();
+                    await loadDashboardData();
+                    showAlert('Transaction added successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error adding transaction', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                showAlert('Connection error. Please try again.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('Are you sure you want to delete this transaction?')) return;
+            
+            try {
+                const response = await fetch(API_BASE + `/transactions/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    await loadTransactions();
+                    await loadDashboardData();
+                    showAlert('Transaction deleted successfully!', 'success');
+                } else {
+                    showAlert('Error deleting transaction', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting transaction:', error);
+                showAlert('Error deleting transaction', 'error');
+            }
+        }
+
+        // Budget functions
+        async function setBudget(e) {
+            e.preventDefault();
+            
+            const budgetData = {
+                category: document.getElementById('budgetCategory').value,
+                limit: parseFloat(document.getElementById('budgetLimit').value)
+            };
+            
+            try {
+                showLoading(true);
+                const response = await fetch(API_BASE + '/budgets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(budgetData)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('budgetForm').reset();
+                    await loadBudgets();
+                    showAlert('Budget set successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error setting budget', 'error');
+                }
+            } catch (error) {
+                console.error('Error setting budget:', error);
+                showAlert('Connection error. Please try again.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Goal functions
+        async function createGoal(e) {
+            e.preventDefault();
+            
+            const goalData = {
+                title: document.getElementById('goalTitle').value,
+                targetAmount: parseFloat(document.getElementById('goalTarget').value),
+                currentAmount: parseFloat(document.getElementById('goalCurrent').value) || 0,
+                targetDate: document.getElementById('goalDate').value,
+                description: document.getElementById('goalDescription').value
+            };
+            
+            try {
+                showLoading(true);
+                const response = await fetch(API_BASE + '/goals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(goalData)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('goalForm').reset();
+                    setDefaultDate();
+                    await loadGoals();
+                    showAlert('Goal created successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error creating goal', 'error');
+                }
+            } catch (error) {
+                console.error('Error creating goal:', error);
+                showAlert('Connection error. Please try again.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function updateGoal(id, currentAmount) {
+            try {
+                const response = await fetch(API_BASE + `/goals/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ currentAmount })
+                });
+                
+                if (response.ok) {
+                    await loadGoals();
+                    showAlert('Goal updated successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error updating goal', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating goal:', error);
+                showAlert('Connection error. Please try again.', 'error');
+            }
+        }
+
+        async function deleteGoal(id) {
+            if (!confirm('Are you sure you want to delete this goal?')) return;
+            
+            try {
+                const response = await fetch(API_BASE + `/goals/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    await loadGoals();
+                    showAlert('Goal deleted successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Error deleting goal', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting goal:', error);
+                showAlert('Connection error. Please try again.', 'error');
+            }
+        }
+
+        // Rendering functions
+        function updateDashboardStats(stats) {
+            document.getElementById('totalIncome').textContent = `${stats.totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `${stats.totalExpenses.toFixed(2)}`;
+            document.getElementById('balance').textContent = `${stats.balance.toFixed(2)}`;
+            document.getElementById('transactionCount').textContent = stats.transactionCount;
+        }
+
+        function renderTransactionsTable() {
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+            
+            transactions.slice(0, 10).forEach(transaction => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                    <td><span style="background: ${transaction.type === 'income' ? '#4caf50' : '#f44336'}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${transaction.type}</span></td>
+                    <td>${transaction.category}</td>
+                    <td style="color: ${transaction.type === 'income' ? '#4caf50' : '#f44336'}">${(transaction.amount || 0).toFixed(2)}</td>
+                    <td>
+                        <button class="btn-small btn-danger" onclick="deleteTransaction('${transaction._id}')">
+                            Delete
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+        function renderBudgets() {
+            const grid = document.getElementById('budgetGrid');
+            grid.innerHTML = '';
+            
+            budgets.forEach(budget => {
+                const spent = calculateCategorySpending(budget.category);
+                const percentage = (spent / budget.limit) * 100;
+                
+                const card = document.createElement('div');
+                card.className = 'budget-card';
+                card.innerHTML = `
+                    <h4>${budget.category}</h4>
+                    <p>Budget: ${budget.limit.toFixed(2)}</p>
+                    <p>Spent: ${spent.toFixed(2)}</p>
+                    <p>Remaining: ${(budget.limit - spent).toFixed(2)}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                    <p>${percentage.toFixed(1)}% used</p>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function renderGoals() {
+            const grid = document.getElementById('goalGrid');
+            grid.innerHTML = '';
+            
+            goals.forEach(goal => {
+                const percentage = (goal.currentAmount / goal.targetAmount) * 100;
+                const daysLeft = Math.ceil((new Date(goal.targetDate) - new Date()) / (1000 * 60 * 60 * 24));
+                
+                const card = document.createElement('div');
+                card.className = 'goal-card';
+                card.innerHTML = `
+                    <h4>${goal.title}</h4>
+                    <p>Target: ${goal.targetAmount.toFixed(2)}</p>
+                    <p>Current: ${goal.currentAmount.toFixed(2)}</p>
+                    <p>Remaining: ${(goal.targetAmount - goal.currentAmount).toFixed(2)}</p>
+                    <p>Days left: ${daysLeft > 0 ? daysLeft : 'Overdue'}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                    <p>${percentage.toFixed(1)}% complete</p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn-small btn-success" onclick="promptUpdateGoal('${goal._id}', ${goal.currentAmount})">
+                            Update Progress
+                        </button>
+                        <button class="btn-small btn-danger" onclick="deleteGoal('${goal._id}')">
+                            Delete
+                        </button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function promptUpdateGoal(id, currentAmount) {
+            const newAmount = prompt('Enter new current amount:', currentAmount);
+            if (newAmount !== null && !isNaN(newAmount)) {
+                updateGoal(id, parseFloat(newAmount));
+            }
+        }
+
+        // Chart rendering functions
+        function renderCharts(stats) {
+            renderCategoryChart(stats.categoryExpenses);
+            renderTrendChart();
+        }
+
+        function renderCategoryChart(categoryExpenses) {
+            const canvas = document.getElementById('categoryChart');
+            const ctx = canvas.getContext('2d');
+            
+            if (categoryChart) {
+                categoryChart.destroy();
+                categoryChart = null;
+            }
+            
+            if (!categoryExpenses || Object.keys(categoryExpenses).length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No expense data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            const categories = Object.keys(categoryExpenses);
+            const amounts = Object.values(categoryExpenses);
+            
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTrendChart() {
+            const canvas = document.getElementById('trendChart');
+            const ctx = canvas.getContext('2d');
+            
+            if (trendChart) {
+                trendChart.destroy();
+                trendChart = null;
+            }
+            
+            const monthlyData = calculateMonthlyTrends();
+            
+            if (!monthlyData.labels.length) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No trend data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthlyData.labels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: monthlyData.income,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Expenses',
+                            data: monthlyData.expenses,
+                            borderColor: '#F44336',
+                            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        function renderMonthlyChart(monthlyData) {
+            const canvas = document.getElementById('monthlyChart');
+            const ctx = canvas.getContext('2d');
+            
+            if (monthlyChart) {
+                monthlyChart.destroy();
+                monthlyChart = null;
+            }
+            
+            if (!monthlyData.labels.length) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data available for comparison', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthlyData.labels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: monthlyData.income,
+                            backgroundColor: '#4CAF50'
+                        },
+                        {
+                            label: 'Expenses',
+                            data: monthlyData.expenses,
+                            backgroundColor: '#F44336'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        // Utility functions
+        function calculateCategorySpending(category) {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            return transactions
+                .filter(t => {
+                    const transactionDate = new Date(t.date);
+                    return t.type === 'expense' && 
+                           t.category === category && 
+                           transactionDate.getMonth() === currentMonth &&
+                           transactionDate.getFullYear() === currentYear;
+                })
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+        }
+
+        function calculateMonthlyTrends() {
+            const monthlyData = {};
+            
+            transactions.forEach(transaction => {
+                const date = new Date(transaction.date);
+                const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[monthYear]) {
+                    monthlyData[monthYear] = { income: 0, expenses: 0 };
+                }
+                
+                monthlyData[monthYear][transaction.type === 'income' ? 'income' : 'expenses'] += (transaction.amount || 0);
+            });
+            
+            const sortedKeys = Object.keys(monthlyData).sort();
+            
+            return {
+                labels: sortedKeys.map(key => {
+                    const [year, month] = key.split('-');
+                    return new Date(year, month - 1).toLocaleDateString('en', { month: 'short', year: 'numeric' });
+                }),
+                income: sortedKeys.map(key => monthlyData[key].income),
+                expenses: sortedKeys.map(key => monthlyData[key].expenses)
+            };
+        }
+
+        function calculateMonthlyAverages() {
+            const monthlyData = calculateMonthlyTrends();
+            const totalMonths = monthlyData.labels.length || 1;
+            
+            const avgIncome = monthlyData.income.reduce((sum, val) => sum + val, 0) / totalMonths;
+            const avgExpenses = monthlyData.expenses.reduce((sum, val) => sum + val, 0) / totalMonths;
+            const savingsRate = avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
+            
+            return { avgIncome, avgExpenses, savingsRate, monthlyData };
+        }
+
+        function updateReportsStats({ avgIncome, avgExpenses, savingsRate }) {
+            document.getElementById('avgIncome').textContent = `${avgIncome.toFixed(2)}`;
+            document.getElementById('avgExpenses').textContent = `${avgExpenses.toFixed(2)}`;
+            document.getElementById('savingsRate').textContent = `${savingsRate.toFixed(1)}%`;
+            document.getElementById('totalTransactions').textContent = transactions.length;
+        }
+
+        function exportData(format) {
+            if (transactions.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const data = {
+                transactions,
+                budgets,
+                goals,
+                exportDate: new Date().toISOString()
+            };
+            
+            let content, filename, mimeType;
+            
+            if (format === 'csv') {
+                content = convertToCSV(transactions);
+                filename = 'finance_data.csv';
+                mimeType = 'text/csv';
+            } else {
+                content = JSON.stringify(data, null, 2);
+                filename = 'finance_data.json';
+                mimeType = 'application/json';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function convertToCSV(transactions) {
+            const headers = ['Date', 'Type', 'Category', 'Amount', 'Description'];
+            const rows = transactions.map(t => [
+                new Date(t.date).toLocaleDateString(),
+                t.type,
+                t.category,
+                t.amount || 0,
+                t.description || ''
+            ]);
+            
+            return [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+        }
+
+        function clearAllData() {
+            transactions = [];
+            budgets = [];
+            goals = [];
+            
+            if (categoryChart) {
+                categoryChart.destroy();
+                categoryChart = null;
+            }
+            if (trendChart) {
+                trendChart.destroy(); 
+                trendChart = null;
+            }
+            if (monthlyChart) {
+                monthlyChart.destroy();
+                monthlyChart = null;
+            }
+            
+            const transactionsBody = document.getElementById('transactionsBody');
+            if (transactionsBody) transactionsBody.innerHTML = '';
+            
+            const budgetGrid = document.getElementById('budgetGrid');
+            if (budgetGrid) budgetGrid.innerHTML = '';
+            
+            const goalGrid = document.getElementById('goalGrid');
+            if (goalGrid) goalGrid.innerHTML = '';
+            
+            document.getElementById('totalIncome').textContent = '$0.00';
+            document.getElementById('totalExpenses').textContent = '$0.00';
+            document.getElementById('balance').textContent = '$0.00';
+            document.getElementById('transactionCount').textContent = '0';
+        }
+    </script>
+</body>
+</html>
